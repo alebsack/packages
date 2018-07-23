@@ -12,12 +12,13 @@ validate_section_gpsd()
 		'enabled:bool:1' \
 		'device:string' \
 		'listen_globally:bool:0' \
+		'use_gps_time:bool:0' \
 		'port:port:2947'
 }
 
 gpsd_instance()
 {
-	local device enabled listen_globally port
+	local device enabled listen_globally port use_gps_time
 
 	validate_section_gpsd "${1}" || {
 		echo "validation failed"
@@ -30,6 +31,7 @@ gpsd_instance()
 	procd_set_param command "$PROG" -N -n
 
 	[ "${listen_globally}" -ne 0 ] && procd_append_param command -G
+	[ "${use_gps_time}" -ne 0 ] && procd_append_param command -r
 	procd_append_param command -S "${port}"
 	procd_append_param command "${device}"
 	procd_set_param respawn
